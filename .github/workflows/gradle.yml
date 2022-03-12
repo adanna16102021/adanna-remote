@@ -1,0 +1,44 @@
+pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+       os:[ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
+      with:
+        arguments: build
+on:
+  schedule:
+    - cron: 0 0 * * * # monthly
+jobs:
+  gradle-rc:
+    runs-on:{{matrix.os}} ubuntu
+    strategy:
+       matrix:
+        os:[ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-java@v2
+      with:
+        java-version: 11
+
+         - name: Setup and execute Gradle 'test' task
+    - uses: gradle/gradle-build-action@v2
+      with:
+        gradle-version: release-candidate
+    - run: gradle build --dry-run # just test build configurationld
+       arguments: test
